@@ -1,6 +1,7 @@
 import express from 'express';
 export const app = express();
 import { createStripeCheckoutSession } from './checkout';
+import { createPaymentIntent } from './payments';
 
 // ALLOW CROSS URL'S TO ACCESS
 app.use(express.json());
@@ -26,3 +27,13 @@ function runAsync(callback: Function) {
     callback(req, res, next).catch(next);
   };
 }
+
+// PAYMENT INTENTS
+app.post(
+  '/payments',
+  runAsync(async ({ body }: Request, res: Response) => {
+    res.send(
+      await createPaymentIntent(body.amount)
+    );
+  })
+);

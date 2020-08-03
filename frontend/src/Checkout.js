@@ -12,7 +12,7 @@ export function Checkout() {
             'https://images.unsplash.com/photo-1512327428889-607eeb19efe8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
         ],
         amount: 200,
-        currency: 'usd',
+        currency: 'eur',
         quantity: 0,
     });
 
