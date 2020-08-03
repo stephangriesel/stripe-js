@@ -13,6 +13,13 @@ app.post('/test', (req: Request, res: Response) => {
   res.status(200).send({ with_tax: amount * 2 }); //
 });
 
+// RAWBODY FOR WEBHOOK HANDLING
+app.use(
+  express.json({
+    verify: (req, res, buffer) => (req['rawBody'] = buffer),
+  })
+);
+
 // CHECKOUT
 app.post(
   '/checkouts/',
