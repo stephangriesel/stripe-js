@@ -1,6 +1,7 @@
 import express from 'express';
 import { createStripeCheckoutSession } from './checkout';
 import { createPaymentIntent } from './payments';
+import { createSetupIntent, listPaymentMethods } from './customers';
 import { auth } from './firebase';
 
 export const app = express();
@@ -59,15 +60,15 @@ app.post(
 );
 
 // RETRIEVE ALL CUSTOMER CARDS
-// app.get(
-//   '/wallet',
-//   runAsync(async (req: Request, res: Response) => {
-//     const user = validateUser(req);
+app.get(
+  '/wallet',
+  runAsync(async (req: Request, res: Response) => {
+    const user = validateUser(req);
 
-//     const wallet = await listPaymentMethods(user.uid);
-//     res.send(wallet.data);
-//   })
-// );
+    const wallet = await listPaymentMethods(user.uid);
+    res.send(wallet.data);
+  })
+);
 
 
 // DECODE FIREBASE TOKEN
