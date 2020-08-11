@@ -102,3 +102,26 @@ function validateUser(req: Request) {
 
   return user;
 }
+
+// CUSTOMER & SETUP INTENTS
+
+// SAVE CARD FOR CUSTOMER INTENT
+app.post(
+  '/wallet',
+  runAsync(async (req: Request, res: Response) => {
+    const user = validateUser(req);
+    const setupIntent = await createSetupIntent(user.uid);
+    res.send(setupIntent);
+  })
+);
+
+// GET ALL CARDS FOR CUSTOMER
+app.get(
+  '/wallet',
+  runAsync(async (req: Request, res: Response) => {
+    const user = validateUser(req);
+
+    const wallet = await listPaymentMethods(user.uid);
+    res.send(wallet.data);
+  })
+);
