@@ -5,14 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 const express_1 = __importDefault(require("express"));
+exports.app = express_1.default();
+const cors_1 = __importDefault(require("cors"));
+const firebase_1 = require("./firebase");
 const checkout_1 = require("./checkout");
 const payments_1 = require("./payments");
 const customers_1 = require("./customers");
-const firebase_1 = require("./firebase");
-exports.app = express_1.default();
+const billing_1 = require("./billing");
 // ALLOW CROSS URL'S TO ACCESS
 exports.app.use(express_1.default.json());
-const cors_1 = __importDefault(require("cors"));
 exports.app.use(cors_1.default({ origin: true }));
 exports.app.post('/test', (req, res) => {
     const amount = req.body.amount;
@@ -86,5 +87,13 @@ exports.app.get('/wallet', runAsync(async (req, res) => {
     const user = validateUser(req);
     const wallet = await customers_1.listPaymentMethods(user.uid);
     res.send(wallet.data);
+}));
+// BILLING & RECURRING SUBSCRIPTIONS
+// CREATE & CHARGE A NEW SUBSCRIPTION
+exports.app.post('/subscriptions/', runAsync(async (req, res) => {
+    const user = validateUser(req);
+    const { plan, payment_method } = req.body;
+    const subscription = await billing_1.createSubscription(user.uid, plan, payment_method);
+    res.send(subscription);
 }));
 //# sourceMappingURL=api.js.map

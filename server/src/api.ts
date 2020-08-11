@@ -1,10 +1,14 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+export const app = express();
+
+import cors from 'cors';
+import { auth } from './firebase';
 import { createStripeCheckoutSession } from './checkout';
 import { createPaymentIntent } from './payments';
 import { createSetupIntent, listPaymentMethods } from './customers';
-import { auth } from './firebase';
-
-export const app = express();
+import {
+  createSubscription
+} from './billing';
 
 // ALLOW CROSS URL'S TO ACCESS
 app.use(express.json());
@@ -123,5 +127,18 @@ app.get(
 
     const wallet = await listPaymentMethods(user.uid);
     res.send(wallet.data);
+  })
+);
+
+// BILLING & RECURRING SUBSCRIPTIONS
+
+// CREATE & CHARGE A NEW SUBSCRIPTION
+app.post(
+  '/subscriptions/',
+  runAsync(async (req: Request, res: Response) => {
+    const user = validateUser(req);
+    const { plan, payment_method } = req.body;
+    const subscription = await createSubscription(user.uid, plan, payment_method);
+    res.send(subscription);
   })
 );
