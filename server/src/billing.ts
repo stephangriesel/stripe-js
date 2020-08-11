@@ -46,3 +46,39 @@ export async function createSubscription(
 
     return subscription;
 }
+
+// CANCEL SUBSCRIPTION & SYNC DATA
+export async function cancelSubscription(
+    userId: string,
+    subscriptionId: string
+) {
+    const customer = await getOrCreateCustomer(userId);
+    if (customer.metadata.firebaseUID !== userId) {
+        throw Error('Firebase UID does not match Stripe Customer');
+    }
+    const subscription = await stripe.subscriptions.del(subscriptionId);
+
+    // Cancel at end of period
+    // const subscription = stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true });
+
+    if (subscription.status === 'canceled') {
+        await db
+            .collection('users')
+            .doc(userId)
+            .update({
+                activePlans: firestore.FieldValue.arrayRemove(subscription.plan.id),
+            });
+    }
+
+    return subscription;
+}
+
+// RETURN ALL SUBSCRIPTIONS LINKED TO USER
+export async function listSubscriptions(userId: string) {
+    const customer = await getOrCreateCustomer(userId);
+    const subscriptions = await stripe.subscriptions.list({
+        customer: customer.id,
+    });
+
+    return subscriptions;
+};

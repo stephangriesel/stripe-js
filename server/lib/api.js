@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 exports.app = express_1.default();
-const cors_1 = __importDefault(require("cors"));
 const firebase_1 = require("./firebase");
 const checkout_1 = require("./checkout");
 const payments_1 = require("./payments");
@@ -14,6 +13,7 @@ const customers_1 = require("./customers");
 const billing_1 = require("./billing");
 // ALLOW CROSS URL'S TO ACCESS
 exports.app.use(express_1.default.json());
+const cors_1 = __importDefault(require("cors"));
 exports.app.use(cors_1.default({ origin: true }));
 exports.app.post('/test', (req, res) => {
     const amount = req.body.amount;
@@ -95,5 +95,16 @@ exports.app.post('/subscriptions/', runAsync(async (req, res) => {
     const { plan, payment_method } = req.body;
     const subscription = await billing_1.createSubscription(user.uid, plan, payment_method);
     res.send(subscription);
+}));
+// Get all subscriptions for a customer
+exports.app.get('/subscriptions/', runAsync(async (req, res) => {
+    const user = validateUser(req);
+    const subscriptions = await listSubscriptions(user.uid);
+    res.send(subscriptions.data);
+}));
+// Unsubscribe or cancel a subscription
+exports.app.patch('/subscriptions/:id', runAsync(async (req, res) => {
+    const user = validateUser(req);
+    res.send(await cancelSubscription(user.uid, req.params.id));
 }));
 //# sourceMappingURL=api.js.map
